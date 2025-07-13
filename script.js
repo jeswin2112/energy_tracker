@@ -39,10 +39,23 @@ const HIGH_DAILY_THRESHOLD_KWH = 25;    // kWh
 // Internal state flags to avoid repeated alerts
 let highInstantAlertActive = false;
 
+// Backend URLs
+const PROD_BACKEND_URL = 'https://energy-tracker-ya37.onrender.com';
+const LOCAL_BACKEND_URL = 'http://' + window.location.hostname + ':5000';
+const API_BASE_URL = window.location.hostname.endsWith('github.io') ? PROD_BACKEND_URL : LOCAL_BACKEND_URL;
+console.log('API_BASE_URL is set to:', API_BASE_URL);
+
+// Intercept fetch calls to rewrite '/api/...' paths to the correct backend
+const _origFetch = window.fetch;
+window.fetch = (input, init) => {
+    if (typeof input === 'string' && input.startsWith('/api/')) {
+        input = API_BASE_URL + input;
+    }
+    return _origFetch(input, init);
+};
+
 // Socket.IO connection
-// In production (GitHub Pages), point to hosted backend; locally, use localhost:5000.
-const PROD_BACKEND_URL = 'https://energy-tracker-ya37.onrender.com'; // <-- replace after deployment
-const socketUrl = window.location.hostname.endsWith('github.io') ? PROD_BACKEND_URL : 'http://' + window.location.hostname + ':5000';
+const socketUrl = API_BASE_URL;
 console.log('Connecting to WebSocket server at:', socketUrl);
 const socket = io(socketUrl, {
     reconnection: true,
@@ -53,7 +66,15 @@ const socket = io(socketUrl, {
 });
 
 // Initialize the application
-function init() {
+async function init() {
+    // Load devices from backend
+    try {
+        const resp = await fetch(`${API_BASE_URL}/api/devices`);
+        devices = await resp.json();
+    } catch (error) {
+        console.error('Error loading devices:', error);
+        addAlert('Failed to load devices', 'error');
+    }
     // Initialize chart
     initChart();
     
@@ -392,7 +413,10 @@ async function removeDevice(e) {
     if (device && confirm(`Are you sure you want to remove ${device.name}?`)) {
         try {
             // Send remove request to server
-            const response = await fetch(`/api/devices/${deviceId}`, {
+            const removeUrl = `${API_BASE_URL}/api/devices/${deviceId}`;
+            console.log('Removing device via URL:', removeUrl);
+
+            const response = await fetch(`${API_BASE_URL}/api/devices/${deviceId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
@@ -481,7 +505,10 @@ function handleAddDevice(e) {
     };
     
     // Send the new device to the server
-    fetch('/api/devices', {
+        const addUrl = `${API_BASE_URL}/api/devices`;
+        console.log('Adding device via URL:', addUrl, deviceData);
+
+    fetch(`${API_BASE_URL}/api/devices`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
