@@ -1,3 +1,9 @@
+import logging
+logging.basicConfig(level=logging.DEBUG)
+import eventlet
+# Monkey-patch stdlib for eventlet compatibility (must run before other imports)
+eventlet.monkey_patch()
+
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit, join_room, leave_room
@@ -15,7 +21,7 @@ device_lock = Lock()
 app.config['SECRET_KEY'] = 'your-secret-key-here'
 CORS(app)
 # Using 'threading' as the async mode for better compatibility
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
 # Thread for background tasks
 thread = None
