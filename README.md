@@ -1,7 +1,7 @@
 # Energy Optimizer Pro
 
 A web application for tracking resource usage, optimizing energy consumption, and displaying alerts for overusage.
-
+(Might take a minute)
 ## Features
 
 - Real-time energy usage monitoring
@@ -16,8 +16,6 @@ A web application for tracking resource usage, optimizing energy consumption, an
 - Frontend: HTML5, CSS3, JavaScript (ES6+), Chart.js
 - Backend: Python, Flask
 - Styling: Custom CSS with CSS Variables for theming
-
-## Getting Started
 
 ### Prerequisites
 
