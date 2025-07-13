@@ -40,7 +40,9 @@ const HIGH_DAILY_THRESHOLD_KWH = 25;    // kWh
 let highInstantAlertActive = false;
 
 // Socket.IO connection
-const socketUrl = 'http://' + window.location.hostname + ':5000';
+// In production (GitHub Pages), point to hosted backend; locally, use localhost:5000.
+const PROD_BACKEND_URL = 'https://energy-tracker-ya37.onrender.com'; // <-- replace after deployment
+const socketUrl = window.location.hostname.endsWith('github.io') ? PROD_BACKEND_URL : 'http://' + window.location.hostname + ':5000';
 console.log('Connecting to WebSocket server at:', socketUrl);
 const socket = io(socketUrl, {
     reconnection: true,
