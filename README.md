@@ -1,7 +1,7 @@
 # Energy Optimizer Pro
 
 A web application for tracking resource usage, optimizing energy consumption, and displaying alerts for overusage.
-(Might take a minute)
+(Might take a minute to load)
 ## Features
 
 - Real-time energy usage monitoring
